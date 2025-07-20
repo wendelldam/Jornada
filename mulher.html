@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animação da Mente da Mulher</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .section {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            text-align: center;
+            max-width: 500px; /* Limita a largura para a seção individual */
+            width: 100%;
+        }
+
+        .character-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .person {
+            width: 120px;
+            height: 120px;
+            background-color: #f472b6; /* Original: Pink for woman */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            color: white; /* Cor da fonte original para o emoji */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .thought-bubble {
+            position: absolute;
+            top: -20px; /* Ajuste conforme necessário */
+            right: -80px; /* Ajuste conforme necessário */
+            background-color: #e0f2fe;
+            border-radius: 20px;
+            padding: 15px 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            min-width: 150px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #333; /* Cor escura para o texto do balão */
+            z-index: 10;
+            cursor: pointer; /* Adicionado cursor pointer para indicar clicável */
+        }
+
+        .thought-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .thought-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid #e0f2fe;
+        }
+
+        .thought-bubble.woman-bubble {
+            right: -80px; /* Ajuste para o balão da mulher */
+            left: auto;
+        }
+
+        .thought-bubble.woman-bubble::after {
+            left: auto;
+            right: 20px;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid #e0f2fe;
+        }
+
+        .cabinet-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .cabinet {
+            background-color: #8b5cf6; /* Original: Darker purple for cabinet */
+            border: 4px solid #6d28d9; /* Original: Even darker purple for border */
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .drawer {
+            background-color: #c4b5fd; /* Original: Lighter purple for drawers */
+            border: 2px solid #a78bfa; /* Original: Purple for drawer border */
+            border-radius: 8px;
+            height: 60px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #4c1d95; /* Cor da fonte original para o texto da gaveta */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .drawer-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #e0f2fe; /* Cor interna da gaveta */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.5s ease-in-out;
+            font-size: 1.1rem;
+            color: #333; /* Cor escura para o texto dentro da gaveta */
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .drawer.open .drawer-content {
+            transform: translateY(0);
+        }
+
+        .drawer.open {
+            background-color: #e0f2fe; /* Mudar cor da gaveta quando aberta */
+        }
+
+        .tangle-of-wires {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: #ef4444; /* Vermelho para os fios */
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .tangle-of-wires span {
+            display: inline-block;
+            transform: rotate(calc(var(--rotation) * 1deg));
+            opacity: calc(0.5 + var(--opacity) * 0.5);
+            margin: 2px;
+            transition: transform 0.2s ease, opacity 0.2s ease; /* Adiciona transição para o embaralhamento */
+        }
+
+        .action-button {
+            background-color: #4f46e5;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+
+        .action-button:hover {
+            background-color: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">A Mente da Mulher</h2>
+        <div class="character-area">
+            <div class="person" id="woman-person">👩</div>
+            <div class="thought-bubble woman-bubble" id="woman-thought-bubble">Clique para pensar!</div>
+        </div>
+        <div class="cabinet-container">
+            <div class="cabinet" id="woman-cabinet">
+                <!-- Gavetas da Mulher serão geradas via JS -->
+            </div>
+        </div>
+        <button class="action-button" id="reset-woman-animation">Reiniciar Animação da Mulher</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Variáveis Globais ---
+            const womanThoughts = ['Trabalho', 'Família', 'Amigos', 'Casa', 'Compras', 'Saúde'];
+
+            const womanThoughtBubble = document.getElementById('woman-thought-bubble');
+            const womanCabinet = document.getElementById('woman-cabinet');
+            const resetWomanAnimationBtn = document.getElementById('reset-woman-animation');
+
+            let currentWomanThoughtIndex = 0; // Índice do pensamento atual da mulher
+            const womanDrawerAnimationIntervals = new Map(); // Para armazenar os IDs dos intervalos de animação das gavetas da mulher
+
+            // --- Funções de Ajuda ---
+
+            /**
+             * Gera as gavetas dinamicamente para o gaveteiro.
+             * @param {HTMLElement} cabinetElement - O elemento do gaveteiro.
+             * @param {string[]} thoughtsArray - Array de pensamentos para as gavetas.
+             * @param {string} prefix - Prefixo para os IDs das gavetas (ex: 'woman').
+             */
+            function generateDrawers(cabinetElement, thoughtsArray, prefix) {
+                cabinetElement.innerHTML = ''; // Limpa as gavetas existentes
+                thoughtsArray.forEach((thought, index) => {
+                    const drawer = document.createElement('div');
+                    drawer.className = 'drawer';
+                    drawer.id = `${prefix}-drawer-${index}`;
+                    drawer.innerHTML = `
+                        <span>${thought}</span>
+                        <div class="drawer-content" id="${prefix}-drawer-content-${index}"></div>
+                    `;
+                    cabinetElement.appendChild(drawer);
+                });
+            }
+
+            /**
+             * Gera o HTML para o "emaranhado de fios" com palavras aleatórias e estilos.
+             * @param {string[]} availableWords - Array de palavras para escolher.
+             * @returns {string} HTML do emaranhado de fios.
+             */
+            function generateShuffledTangle(availableWords) {
+                let tangleHTML = '<div class="tangle-of-wires">';
+                const shuffledWords = [...availableWords].sort(() => 0.5 - Math.random()); // Embaralha as palavras
+                const wordsToDisplay = shuffledWords.slice(0, Math.min(5, shuffledWords.length)); // Exibe no máximo 5 palavras
+
+                wordsToDisplay.forEach(word => {
+                    const rotation = Math.random() * 60 - 30; // -30 a 30 graus
+                    const opacity = Math.random(); // 0 a 1
+                    tangleHTML += `<span style="--rotation:${rotation}; --opacity:${opacity};">${word}</span>`;
+                });
+                tangleHTML += '</div>';
+                return tangleHTML;
+            }
+
+            /**
+             * Reseta o estado da animação.
+             * @param {string} prefix - Prefixo para os IDs dos elementos ('woman').
+             */
+            function resetAnimation(prefix) {
+                document.getElementById(`${prefix}-thought-bubble`).classList.remove('active');
+                document.getElementById(`${prefix}-thought-bubble`).textContent = 'Clique para pensar!'; // Mensagem inicial
+                const drawers = document.querySelectorAll(`#${prefix}-cabinet .drawer`);
+                drawers.forEach(drawer => {
+                    drawer.classList.remove('open');
+                    // Limpa o conteúdo interno da gaveta
+                    const content = drawer.querySelector('.drawer-content');
+                    if (content) content.innerHTML = '';
+                });
+
+                // Limpa todos os intervalos de animação das gavetas da mulher
+                womanDrawerAnimationIntervals.forEach(intervalId => clearInterval(intervalId));
+                womanDrawerAnimationIntervals.clear();
+                currentWomanThoughtIndex = 0; // Reseta o índice do pensamento
+            }
+
+            // --- Animação da Mulher (acionada pelo clique no balão) ---
+
+            /**
+             * Manipula o clique no balão de pensamento da mulher.
+             * Abre a gaveta correspondente ao balão e inicia o embaralhamento.
+             */
+            function handleWomanBubbleClick() {
+                if (currentWomanThoughtIndex < womanThoughts.length) {
+                    const thought = womanThoughts[currentWomanThoughtIndex];
+                    const drawerIndex = currentWomanThoughtIndex;
+
+                    // Exibe o pensamento no balão
+                    womanThoughtBubble.textContent = thought;
+                    womanThoughtBubble.classList.add('active');
+
+                    const drawer = document.getElementById(`woman-drawer-${drawerIndex}`);
+                    if (drawer) {
+                        // Fecha todas as outras gavetas abertas antes de abrir a nova
+                        const allDrawers = document.querySelectorAll(`#woman-cabinet .drawer`);
+                        allDrawers.forEach((d, i) => {
+                            if (i !== drawerIndex && d.classList.contains('open')) {
+                                d.classList.remove('open');
+                                const content = d.querySelector('.drawer-content');
+                                if (content) content.innerHTML = '';
+                                // Para o embaralhamento de qualquer gaveta que esteja sendo fechada
+                                if (womanDrawerAnimationIntervals.has(i)) {
+                                    clearInterval(womanDrawerAnimationIntervals.get(i));
+                                    womanDrawerAnimationIntervals.delete(i);
+                                }
+                            }
+                        });
+
+                        // Abre a gaveta correspondente
+                        drawer.classList.add('open');
+                        const drawerContent = document.getElementById(`woman-drawer-content-${drawerIndex}`);
+                        if (drawerContent) {
+                            // Inicia ou continua a animação de embaralhamento para esta gaveta
+                            if (!womanDrawerAnimationIntervals.has(drawerIndex)) {
+                                const intervalId = setInterval(() => {
+                                    drawerContent.innerHTML = generateShuffledTangle(womanThoughts);
+                                }, 500); // Atualiza a cada 0.5 segundos
+                                womanDrawerAnimationIntervals.set(drawerIndex, intervalId);
+                            }
+                            // Garante que o conteúdo inicial seja exibido imediatamente
+                            drawerContent.innerHTML = generateShuffledTangle(womanThoughts);
+                        }
+                    }
+                    currentWomanThoughtIndex++;
+                } else {
+                    // Se todos os pensamentos foram exibidos, reinicia a animação
+                    resetAnimation('woman');
+                }
+            }
+
+            // --- Inicialização ---
+            generateDrawers(womanCabinet, womanThoughts, 'woman');
+
+            // Adiciona listeners para o balão de pensamento
+            womanThoughtBubble.addEventListener('click', handleWomanBubbleClick);
+
+            // Adiciona listeners para o botão de reiniciar
+            resetWomanAnimationBtn.addEventListener('click', () => resetAnimation('woman'));
+
+            // Define o texto inicial do balão
+            womanThoughtBubble.textContent = 'Clique para pensar!';
+            womanThoughtBubble.classList.add('active'); // Mantém o balão inicial visível
+        });
+    </script>
+</body>
+</html>
